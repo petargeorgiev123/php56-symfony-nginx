@@ -1,0 +1,31 @@
+---
+server:
+    install: '1'
+    timezone: UTC
+    locale: es_ES.UTF-8
+vagrant_local:
+    install: '1'
+    vm: { base_box: trusty64, hostname: localhost, ip: 192.168.36.96, memory: '512', sharedfolder: ./, useVagrantCloud: '1', syncType: nfs }
+nginx:
+    install: '1'
+    docroot: /vagrant
+    servername: vm6.dev
+mysql:
+    install: '1'
+    root_password: root
+    database: cueball
+    user: user
+    password: password
+    dump: ''
+php:
+    install: '1'
+#    ppa: php5-5.6
+#    packages: [php5-cli, php5-intl, php5-mcrypt, php5-mysql]
+    ppa: php
+    packages: [php5.6-cli, php5.6-intl, php5.6-mcrypt, php5.6-curl, php5.6-gd, php5.6-mysql, php5.6-xdebug, php5.6-dev, php5.6-mbstring, php5.6-dom, php5.6-bcmath]
+
+xdebug:
+    install: '1'
+composer:
+    install: '1'
+

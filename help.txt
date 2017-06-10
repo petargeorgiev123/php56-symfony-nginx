@@ -1,0 +1,13 @@
+/etc/hosts/
+127.0.0.1 vm6.dev
+
+instal php5.6 fpm
+
+sudo apt-get install php5.6-fpm
+put the socket into ngnex template
+/var/run/php/php5.6-fpm.sock
+
+import database
+mysql -u root -p cueball < /vagrant/cueball_2017-06-03.sql
+Create cueball_audit dataabse
+mysql -u root -p cueball_audit < /vagrant/cueball_audit_2017-06-03.sql
