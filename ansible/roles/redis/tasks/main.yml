@@ -1,0 +1,107 @@
+---
+- name: Configure redis as a service
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/{{ redis_port }}.conf
+    owner: "{{ redis_user }}"
+  tags:
+    - redis
+- name: Copy redis-cli and redis-server to bin
+  command: cp /opt/redis/bin/{{item}} /usr/local/bin/ creates="/usr/local/bin/{{item}}"
+  with_items:
+    - redis-cli
+    - redis-server
+  tags:
+    - redis
+
+- name: Add redis init script
+  template:
+    src: redis.init.conf.j2
+    dest: /etc/init.d/redis
+  tags:
+    - redis
+  notify: restart redis
+- name: Make redis script executable
+  file:
+    path: /etc/init.d/redis
+    mode: "u=rwx,g=rx,o=r"
+  tags:
+    - redis
+- name: Auto Start Redis
+  service:
+    name: redis
+    state: started
+    enabled: on
+  tags:
+    - redis
+- name: create phpredis client folder
+  file:
+    path: /tmp/phpredis
+    state: directory
+    owner: vagrant
+  tags:
+    - redis
+
+- name: Directory where modules are installed
+  command: php-config --extension-dir
+  register: php_config_dir
+  tags:
+    - redis
+- name: Force rebuild of redis module
+  file:
+    path: "{{php_config_dir.stdout}}/redis.so"
+    state: absent
+  when: "redis_rebuild_module|bool == true"
+  tags:
+    - redis
+- name: download latest stable phpredis client
+  unarchive:
+    src: https://github.com/nicolasff/phpredis/archive/master.zip
+    dest: /tmp/phpredis
+    copy: no
+    creates: "{{php_config_dir.stdout}}/redis.so"
+  register: result
+  until: result|success
+  retries: 3
+  delay: 5
+  tags:
+    - redis
+
+- name: Do Phpize Redis
+  command: chdir=/tmp/phpredis/phpredis-master phpize creates="{{php_config_dir.stdout}}/redis.so"
+  tags:
+    - redis
+
+- name: Configure
+  command: chdir=/tmp/phpredis/phpredis-master ./configure creates="{{php_config_dir.stdout}}/redis.so"
+  tags:
+    - redis
+
+- name: Make Redis
+  command: chdir=/tmp/phpredis/phpredis-master make creates="{{php_config_dir.stdout}}/redis.so"
+  tags:
+    - redis
+
+- name: Make Install The Redis
+  command: chdir=/tmp/phpredis/phpredis-master make install creates="{{php_config_dir.stdout}}/redis.so"
+  tags:
+    - redis
+- name: Install redis python module to control redis through ansible
+  pip:
+    name: redis
+    state: present
+  tags:
+    - redis
+#TODO This is not working
+- name: Add redis.so to php modules
+  template:
+    src: phpredis.ini.j2
+#    dest: /etc/php.d/phpredis.ini
+    dest: /etc/php5/mods-available/phpredis.ini
+    force: yes
+    mode: "u=rwx,g=rwx,o=rx"
+    owner: "root"
+    group: "root"
+  tags:
+    - redis
+  notify: restart php

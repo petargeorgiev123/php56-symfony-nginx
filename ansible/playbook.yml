@@ -12,3 +12,5 @@
     - xdebug
     - composer
     - app
+    - DavidWittman.redis
+    - redis

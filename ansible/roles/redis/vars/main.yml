@@ -1,0 +1,9 @@
+---
+#Force the download of the Redis module
+redis_rebuild_module: false
+#Redis port where we're going to be listening
+redis_port: 6379
+#user that owns the redis lock file
+redis_user: redis
+#Group of the redis user,
+redis_group: "{{ redis_user }}"
