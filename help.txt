@@ -11,3 +11,20 @@ import database
 mysql -u root -p cueball < /vagrant/cueball_2017-06-03.sql
 Create cueball_audit dataabse
 mysql -u root -p cueball_audit < /vagrant/cueball_audit_2017-06-03.sql
+
+
+Find where your redis.so is located and put for php-fpm5.6
+sudo find / -name "redis.so"
+sudo vim /etc/php/5.6/fpm/php.ini
+put insite ini file
+[redis]
+extension="/usr/lib/php/20131226/redis.so"
+sudo service php5.6-fpm restart
+
+
+
+manualy install redis if neccesary
+https://anton.logvinenko.name/en/blog/how-to-install-redis-and-redis-php-client.html
+
+-----
+git diff HEAD..origin/develop --name-only|grep \.php | xargs -I {} php-cs-fixer fix --config=.php_cs.dist.ci {}

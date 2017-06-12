@@ -1,0 +1,25 @@
+---
+- include: check_vars.yml
+  tags:
+    - redis
+
+- include: install.yml
+  tags:
+    - redis
+
+- include: server.yml
+  when: not redis_sentinel
+  tags:
+    - redis
+    - config
+
+- include: sentinel.yml
+  when: redis_sentinel
+  tags:
+    - config
+    - redis
+
+- include: local_facts.yml
+  when: redis_local_facts|bool
+  tags:
+    - redis

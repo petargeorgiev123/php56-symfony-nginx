@@ -1,0 +1,28 @@
+---
+- name: restart php
+  service: name={{item}} state=restarted
+  with_items:
+    - php5-fpm
+- name: restart nginx
+  service: name={{item}} state=restarted
+  with_items:
+    - nginx
+- name: Ensure file permissions for project
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: "0775"
+    group: "nginx"
+    recurse: yes
+  with_items:
+    - "{{ app_root_dir }}"
+- name: Ensure file permissions on gnupg
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: "0775"
+    owner: "{{app_user}}"
+    group: "nginx"
+    recurse: yes
+  with_items:
+    - "/home/{{app_user}}/.gnupg"
